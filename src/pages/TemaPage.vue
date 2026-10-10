@@ -32,6 +32,7 @@
         <header class="tema__cabecera">
           <div class="tema__chips">
             <span class="text-eyebrow">{{ APP_PARROQUIA }}</span>
+            <ChipNuevo v-if="esNuevo" />
             <EstadoChip v-if="auth.esCatequista" :estado="tema.estado" />
           </div>
 
@@ -107,10 +108,12 @@
 import { computed, onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router';
 import ArchivoItem from '@/components/ArchivoItem.vue';
+import ChipNuevo from '@/components/ChipNuevo.vue';
 import EstadoChip from '@/components/EstadoChip.vue';
 import VacioEstado from '@/components/VacioEstado.vue';
 import VistaArchivoDialog from '@/components/VistaArchivoDialog.vue';
 import { APP_PARROQUIA } from '@/config/app';
+import { temaMasRecienteId } from '@/services/temas';
 import { useAuthStore } from '@/stores/auth';
 import { useTemasStore } from '@/stores/temas';
 import { formatFecha, INFO_TIPOS, tipoDeArchivo, type TipoArchivo } from '@/utils/formato';
@@ -122,6 +125,7 @@ const auth = useAuthStore();
 
 const tema = ref<Tema | null>(null);
 const archivos = ref<Archivo[]>([]);
+const esNuevo = ref(false);
 const visorAbierto = ref(false);
 const archivoActivo = ref<Archivo | null>(null);
 
@@ -159,6 +163,14 @@ onMounted(async () => {
     archivos.value = resultado.archivos;
   } catch {
     tema.value = null;
+  }
+
+  if (tema.value) {
+    try {
+      esNuevo.value = (await temaMasRecienteId()) === tema.value.id;
+    } catch {
+      esNuevo.value = false;
+    }
   }
 });
 </script>

@@ -59,3 +59,17 @@ export async function eliminarTema(id: string): Promise<void> {
 export async function cambiarEstado(id: string, estado: Tema['estado']): Promise<Tema> {
   return actualizarTema(id, { estado });
 }
+
+/** Devuelve el id del tema publicado con mayor fecha de creación, o null si no hay publicados. */
+export async function temaMasRecienteId(): Promise<string | null> {
+  const { data, error } = await supabase
+    .from('temas')
+    .select('id, creado_at, estado')
+    .eq('estado', 'publicado')
+    .order('creado_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data?.id ?? null;
+}

@@ -18,6 +18,14 @@ export const useTemasStore = defineStore('temas', () => {
 
   const publicados = computed(() => temas.value.filter((t) => t.estado === 'publicado'));
   const borradores = computed(() => temas.value.filter((t) => t.estado === 'borrador'));
+  const nuevoId = computed(() => {
+    const lista = publicados.value.slice().sort((a, b) => {
+      const da = a.creado_at ? new Date(a.creado_at).getTime() : 0;
+      const db = b.creado_at ? new Date(b.creado_at).getTime() : 0;
+      return db - da;
+    });
+    return lista[0]?.id ?? null;
+  });
 
   async function cargar(): Promise<void> {
     cargando.value = true;
@@ -82,6 +90,7 @@ export const useTemasStore = defineStore('temas', () => {
     error,
     publicados,
     borradores,
+    nuevoId,
     cargar,
     cargarUno,
     crear,

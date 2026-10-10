@@ -2,10 +2,13 @@
   <component
     :is="esEnlace ? 'router-link' : 'div'"
     :to="esEnlace ? destino : undefined"
-    class="app-card tema-card"
+    :class="['app-card', 'tema-card', { 'tema-card--nuevo': nuevo }]"
   >
     <div class="tema-card__topo">
-      <span class="tema-card__numero">{{ numero }}</span>
+      <div class="tema-card__topo-izq">
+        <span class="tema-card__numero">{{ numero }}</span>
+        <ChipNuevo v-if="nuevo" />
+      </div>
       <EstadoChip v-if="mostrarEstado" :estado="tema.estado" />
     </div>
 
@@ -35,6 +38,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import EstadoChip from './EstadoChip.vue';
+import ChipNuevo from './ChipNuevo.vue';
 import { formatFecha } from '@/utils/formato';
 import type { EstadoTema } from '@/types/database';
 
@@ -51,12 +55,14 @@ const props = withDefaults(
     mostrarEstado?: boolean;
     destino?: unknown;
     esEnlace?: boolean;
+    nuevo?: boolean;
   }>(),
   {
     numero: 1,
     totalArchivos: 0,
     mostrarEstado: true,
     esEnlace: true,
+    nuevo: false,
   },
 );
 
@@ -87,11 +93,32 @@ const totalArchivos = computed(() => props.totalArchivos ?? 0);
   }
 }
 
+.tema-card--nuevo {
+  border-color: rgba(232, 163, 61, 0.5);
+  box-shadow:
+    0 2px 6px rgba(36, 31, 53, 0.05),
+    0 18px 36px -18px rgba(232, 163, 61, 0.4);
+
+  &:hover {
+    border-color: rgba(232, 163, 61, 0.6);
+    box-shadow:
+      0 2px 6px rgba(36, 31, 53, 0.05),
+      0 20px 40px -18px rgba(232, 163, 61, 0.5);
+  }
+}
+
 .tema-card__topo {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
+}
+
+.tema-card__topo-izq {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .tema-card__numero {

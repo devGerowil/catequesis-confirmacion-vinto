@@ -11,7 +11,7 @@
       </header>
 
       <q-input
-        v-if="visible.length > 0"
+        v-if="hayTemas"
         v-model="busqueda"
         outlined
         dense
@@ -41,40 +41,47 @@
         <span>Cargando temas…</span>
       </div>
 
-      <template v-else-if="visible.length > 0">
-        <p class="inicio__conteo">
-          {{ visible.length }}
-          {{ visible.length === 1 ? 'tema disponible' : 'temas disponibles' }}
+      <template v-else>
+        <TemaDestacado
+          v-if="temaDestacado"
+          :tema="temaDestacado"
+          :total-archivos="temaDestacado.total_archivos ?? 0"
+        />
+
+        <p v-if="hayTemas" class="inicio__conteo">
+          {{ totalVisible }}
+          {{ totalVisible === 1 ? 'tema disponible' : 'temas disponibles' }}
         </p>
 
-        <transition-group name="app-fade" tag="div" class="inicio__grid">
+        <transition-group v-if="mostrarGrilla" name="app-fade" tag="div" class="inicio__grid">
           <TemaCard
-            v-for="(tema, indice) in visible"
+            v-for="(tema, indice) in grilla"
             :key="tema.id"
             :tema="tema"
             :numero="indice + 1"
             :total-archivos="tema.total_archivos ?? 0"
             :mostrar-estado="false"
+            :nuevo="tema.id === store.nuevoId"
             :destino="{ name: 'tema', params: { id: tema.id } }"
           />
         </transition-group>
+
+        <VacioEstado
+          v-else-if="mostrarResultadosVacios"
+          icono="search_off"
+          titulo="Ningún tema coincide"
+          descripcion="Prueba con otra palabra o revisa la ortografía."
+        >
+          <q-btn flat color="primary" label="Limpiar búsqueda" @click="busqueda = ''" />
+        </VacioEstado>
+
+        <VacioEstado
+          v-else-if="!hayTemas"
+          icono="hourglass_empty"
+          titulo="Todavía no hay temas publicados"
+          descripcion="En cuanto el catequista publique el primer tema, aparecerá aquí."
+        />
       </template>
-
-      <VacioEstado
-        v-else-if="busqueda"
-        icono="search_off"
-        titulo="Ningún tema coincide"
-        descripcion="Prueba con otra palabra o revisa la ortografía."
-      >
-        <q-btn flat color="primary" label="Limpiar búsqueda" @click="busqueda = ''" />
-      </VacioEstado>
-
-      <VacioEstado
-        v-else
-        icono="hourglass_empty"
-        titulo="Todavía no hay temas publicados"
-        descripcion="En cuanto el catequista publique el primer tema, aparecerá aquí."
-      />
     </main>
   </q-page>
 </template>
@@ -82,23 +89,51 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue';
 import TemaCard from '@/components/TemaCard.vue';
+import TemaDestacado from '@/components/TemaDestacado.vue';
 import VacioEstado from '@/components/VacioEstado.vue';
 import { APP_PARROQUIA } from '@/config/app';
 import { useTemasStore } from '@/stores/temas';
 import { normalizar } from '@/utils/formato';
+import type { Tema } from '@/types/database';
 
 const store = useTemasStore();
 const busqueda = ref('');
 
-const visible = computed(() => {
-  const texto = normalizar(busqueda.value.trim());
-  const publicados = store.cargando ? [] : store.publicados;
-  if (!texto) return publicados;
+const basePublicados = computed<Tema[]>(() => (store.cargando ? [] : store.publicados));
 
-  return publicados.filter((tema) =>
-    normalizar(`${tema.titulo} ${tema.descripcion ?? ''}`).includes(texto)
+const filtrados = computed<Tema[]>(() => {
+  const texto = normalizar(busqueda.value.trim());
+  if (!texto) return basePublicados.value;
+  return basePublicados.value.filter((tema) =>
+    normalizar(`${tema.titulo} ${tema.descripcion ?? ''}`).includes(texto),
   );
 });
+
+const nuevoTema = computed<Tema | null>(() => {
+  const id = store.nuevoId;
+  if (!id) return null;
+  return basePublicados.value.find((t) => t.id === id) ?? null;
+});
+
+const temaDestacado = computed<Tema | null>(() => {
+  if (busqueda.value.trim()) return null;
+  return nuevoTema.value;
+});
+
+const grilla = computed<Tema[]>(() => {
+  if (busqueda.value.trim()) return filtrados.value;
+  if (!temaDestacado.value) return filtrados.value;
+  return filtrados.value.filter((t) => t.id !== temaDestacado.value?.id);
+});
+
+const totalVisible = computed(() =>
+  busqueda.value.trim() ? filtrados.value.length : store.publicados.length,
+);
+const hayTemas = computed(() => store.publicados.length > 0);
+const mostrarGrilla = computed(() => grilla.value.length > 0);
+const mostrarResultadosVacios = computed(
+  () => !!busqueda.value.trim() && filtrados.value.length === 0,
+);
 
 onMounted(() => {
   void store.cargar();
