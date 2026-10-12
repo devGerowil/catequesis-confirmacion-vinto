@@ -50,8 +50,15 @@
             </span>
           </div>
 
+          <ResumenTipos v-if="archivos.length" :resumen="resumen" class="tema__resumen" />
+
           <p v-if="tema.descripcion" class="tema__descripcion">
             {{ tema.descripcion }}
+          </p>
+
+          <p v-if="archivos.length" class="tema__ayuda">
+            <q-icon name="lightbulb" size="16px" />
+            Aquí está el material de este tema: míralo o descárgalo cuando lo necesites.
           </p>
         </header>
 
@@ -110,6 +117,7 @@ import { useRoute } from 'vue-router';
 import ArchivoItem from '@/components/ArchivoItem.vue';
 import ChipNuevo from '@/components/ChipNuevo.vue';
 import EstadoChip from '@/components/EstadoChip.vue';
+import ResumenTipos from '@/components/ResumenTipos.vue';
 import VacioEstado from '@/components/VacioEstado.vue';
 import VistaArchivoDialog from '@/components/VistaArchivoDialog.vue';
 import { APP_PARROQUIA } from '@/config/app';
@@ -128,6 +136,15 @@ const archivos = ref<Archivo[]>([]);
 const esNuevo = ref(false);
 const visorAbierto = ref(false);
 const archivoActivo = ref<Archivo | null>(null);
+
+const resumen = computed(() => {
+  const conteo: Partial<Record<TipoArchivo, number>> = {};
+  for (const archivo of archivos.value) {
+    const tipo = tipoDeArchivo(archivo);
+    conteo[tipo] = (conteo[tipo] ?? 0) + 1;
+  }
+  return conteo;
+});
 
 const grupos = computed(() => {
   const porTipo = new Map<TipoArchivo, Archivo[]>();
@@ -236,6 +253,23 @@ onMounted(async () => {
   font-size: 1.06rem;
   line-height: 1.65;
   color: $app-text;
+}
+
+.tema__resumen {
+  margin-top: 12px;
+}
+
+.tema__ayuda {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 14px 0 0;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(91, 75, 196, 0.06);
+  color: $app-text-muted;
+  font-size: 0.9rem;
+  line-height: 1.5;
 }
 
 .tema__contenido {

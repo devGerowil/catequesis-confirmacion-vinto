@@ -16,29 +16,32 @@
     <div class="archivo__acciones">
       <q-btn
         v-if="esVisualizable(tipo)"
-        flat
-        round
+        unelevated
+        no-caps
         dense
-        icon="open_in_new"
+        color="primary"
+        text-color="white"
+        icon="visibility"
+        label="Ver"
+        class="archivo__btn"
         aria-label="Ver archivo"
         @click="$emit('ver', archivo)"
-      >
-        <q-tooltip>Ver</q-tooltip>
-      </q-btn>
+      />
 
       <q-btn
         flat
-        round
+        no-caps
         dense
+        color="primary"
         icon="download"
+        label="Descargar"
+        class="archivo__btn"
         aria-label="Descargar archivo"
         :href="url"
         target="_blank"
         rel="noopener"
         download
-      >
-        <q-tooltip>Descargar</q-tooltip>
-      </q-btn>
+      />
     </div>
   </div>
 </template>
@@ -143,6 +146,23 @@ const fecha = computed(() => (props.mostrarFecha ? formatFecha(props.archivo.cre
 .archivo__acciones {
   display: flex;
   flex: none;
-  gap: 2px;
+  gap: 6px;
+}
+
+.archivo__btn {
+  min-height: 40px;
+  padding: 0 12px;
+  border-radius: 11px;
+}
+
+@media (max-width: 480px) {
+  .archivo {
+    flex-wrap: wrap;
+  }
+
+  .archivo__acciones {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 </style>

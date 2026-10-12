@@ -91,6 +91,13 @@ body {
   text-transform: none;
 }
 
+// Accesibilidad: foco visible para quienes navegan con teclado
+:focus-visible {
+  outline: 3px solid rgba(91, 75, 196, 0.45);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
 .q-field--outlined .q-field__control::before {
   border-color: $app-border;
 }

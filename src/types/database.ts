@@ -5,6 +5,8 @@
  * resultado de `supabase gen types typescript --project-id <id>`.
  */
 
+import type { TipoArchivo } from '@/utils/formato';
+
 export type EstadoTema = 'borrador' | 'publicado';
 
 export type RolCatequista = 'principal' | 'editor';
@@ -33,6 +35,7 @@ export interface Tema {
   actualizado_at: string;
   archivos?: Archivo[] | null;
   total_archivos?: number | null;
+  resumen_tipos?: Partial<Record<TipoArchivo, number>> | null;
 }
 
 export interface Archivo {

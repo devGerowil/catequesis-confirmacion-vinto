@@ -5,10 +5,25 @@
         <span class="text-eyebrow">{{ APP_PARROQUIA }}</span>
         <h1 class="text-display inicio__titulo">Temas de catequesis</h1>
         <p class="inicio__intro">
-          Todo el material de la Confirmación 2026 en un solo lugar. Entra a cada tema para ver su
-          contenido y descargar los archivos.
+          Aquí tienes todo el material de tu Confirmación 2026. Abre un tema para ver o descargar lo
+          que necesites.
         </p>
       </header>
+
+      <ol class="inicio__guia" aria-label="Cómo usar la página">
+        <li class="inicio__paso">
+          <span class="inicio__paso-num">1</span>
+          <span class="inicio__paso-texto">Elige un tema</span>
+        </li>
+        <li class="inicio__paso">
+          <span class="inicio__paso-num">2</span>
+          <span class="inicio__paso-texto">Mira el material</span>
+        </li>
+        <li class="inicio__paso">
+          <span class="inicio__paso-num">3</span>
+          <span class="inicio__paso-texto">Descarga lo que necesites</span>
+        </li>
+      </ol>
 
       <q-input
         v-if="hayTemas"
@@ -17,7 +32,7 @@
         dense
         clearable
         debounce="150"
-        placeholder="Buscar un tema…"
+        placeholder="Busca por nombre del tema…"
         aria-label="Buscar un tema"
         class="inicio__buscador"
       >
@@ -46,6 +61,7 @@
           v-if="temaDestacado"
           :tema="temaDestacado"
           :total-archivos="temaDestacado.total_archivos ?? 0"
+          :resumen-tipos="temaDestacado.resumen_tipos"
         />
 
         <p v-if="hayTemas" class="inicio__conteo">
@@ -60,6 +76,7 @@
             :tema="tema"
             :numero="indice + 1"
             :total-archivos="tema.total_archivos ?? 0"
+            :resumen-tipos="tema.resumen_tipos"
             :mostrar-estado="false"
             :nuevo="tema.id === store.nuevoId"
             :destino="{ name: 'tema', params: { id: tema.id } }"
@@ -148,7 +165,7 @@ onMounted(() => {
 
 .inicio__cabecera {
   max-width: 46ch;
-  margin-bottom: 28px;
+  margin-bottom: 22px;
 }
 
 .inicio__titulo {
@@ -161,6 +178,42 @@ onMounted(() => {
   color: $app-text-muted;
   font-size: 1rem;
   line-height: 1.65;
+}
+
+.inicio__guia {
+  list-style: none;
+  margin: 0 0 26px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.inicio__paso {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 15px;
+  border-radius: 999px;
+  background: $app-surface;
+  border: 1px solid $app-border;
+  box-shadow: $elevation-1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: $app-text;
+}
+
+.inicio__paso-num {
+  display: grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  flex: none;
+  border-radius: 50%;
+  background: rgba(91, 75, 196, 0.12);
+  color: $primary;
+  font-size: 0.78rem;
+  font-weight: 700;
 }
 
 .inicio__buscador {

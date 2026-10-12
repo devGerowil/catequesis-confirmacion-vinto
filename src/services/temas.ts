@@ -1,4 +1,5 @@
 import { supabase } from './supabase';
+import { tipoDeArchivo, type TipoArchivo } from '@/utils/formato';
 import type { Tema, TemaInput, TemaUpdate } from '@/types/database';
 
 const CAMPOS =
@@ -8,16 +9,27 @@ const CAMPOS =
 export async function listarTemas(): Promise<Tema[]> {
   const { data, error } = await supabase
     .from('temas')
-    .select(`${CAMPOS}, archivos(count)`)
+    .select(`${CAMPOS}, archivos(mime, nombre)`)
     .order('orden', { ascending: true })
     .order('titulo', { ascending: true });
 
   if (error) throw error;
 
-  return (data ?? []).map(({ archivos, ...fila }) => ({
-    ...fila,
-    total_archivos: archivos?.[0]?.count ?? 0,
-  }));
+  return (data ?? []).map(({ archivos, ...fila }) => {
+    const lista = archivos ?? [];
+    const resumen_tipos: Partial<Record<TipoArchivo, number>> = {};
+
+    for (const archivo of lista) {
+      const tipo = tipoDeArchivo(archivo);
+      resumen_tipos[tipo] = (resumen_tipos[tipo] ?? 0) + 1;
+    }
+
+    return {
+      ...fila,
+      total_archivos: lista.length,
+      resumen_tipos,
+    };
+  });
 }
 
 /** Obtiene un tema por id, o `null` si no existe o no es visible. */

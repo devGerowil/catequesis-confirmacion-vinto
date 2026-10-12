@@ -18,19 +18,26 @@
       {{ tema.descripcion }}
     </p>
 
-    <div class="tema-card__pie">
-      <span v-if="tema.fecha" class="tema-card__meta">
-        <q-icon name="calendar_today" size="14px" />
-        {{ formatFecha(tema.fecha) }}
-      </span>
+    <div class="tema-card__abajo">
+      <ResumenTipos :resumen="resumenTipos" />
 
-      <span class="tema-card__meta">
-        <q-icon name="attach_file" size="14px" />
-        {{ totalArchivos }}
-        {{ totalArchivos === 1 ? 'archivo' : 'archivos' }}
-      </span>
+      <div class="tema-card__pie">
+        <span v-if="tema.fecha" class="tema-card__meta">
+          <q-icon name="calendar_today" size="14px" />
+          {{ formatFecha(tema.fecha) }}
+        </span>
 
-      <q-icon name="arrow_forward" size="16px" class="tema-card__flecha" />
+        <span class="tema-card__meta">
+          <q-icon name="attach_file" size="14px" />
+          {{ totalArchivos }}
+          {{ totalArchivos === 1 ? 'archivo' : 'archivos' }}
+        </span>
+      </div>
+
+      <span class="tema-card__cta">
+        <span>Ver material</span>
+        <q-icon name="arrow_forward" size="18px" />
+      </span>
     </div>
   </component>
 </template>
@@ -39,7 +46,8 @@
 import { computed } from 'vue';
 import EstadoChip from './EstadoChip.vue';
 import ChipNuevo from './ChipNuevo.vue';
-import { formatFecha } from '@/utils/formato';
+import ResumenTipos from './ResumenTipos.vue';
+import { formatFecha, type TipoArchivo } from '@/utils/formato';
 import type { EstadoTema } from '@/types/database';
 
 const props = withDefaults(
@@ -52,6 +60,7 @@ const props = withDefaults(
     };
     numero?: number;
     totalArchivos?: number;
+    resumenTipos?: Partial<Record<TipoArchivo, number>> | null | undefined;
     mostrarEstado?: boolean;
     destino?: unknown;
     esEnlace?: boolean;
@@ -90,6 +99,11 @@ const totalArchivos = computed(() => props.totalArchivos ?? 0);
       0 2px 4px rgba(36, 31, 53, 0.05),
       0 16px 32px -16px rgba(91, 75, 196, 0.3);
     transform: translateY(-2px);
+  }
+
+  &:focus-visible {
+    outline: 3px solid rgba(91, 75, 196, 0.45);
+    outline-offset: 2px;
   }
 }
 
@@ -151,9 +165,15 @@ const totalArchivos = computed(() => props.totalArchivos ?? 0);
   overflow: hidden;
 }
 
-.tema-card__pie {
+.tema-card__abajo {
   margin-top: auto;
-  padding-top: 6px;
+  padding-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tema-card__pie {
   display: flex;
   align-items: center;
   gap: 14px;
@@ -168,18 +188,25 @@ const totalArchivos = computed(() => props.totalArchivos ?? 0);
   gap: 5px;
 }
 
-.tema-card__flecha {
-  margin-left: auto;
+.tema-card__cta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-top: 4px;
+  padding: 10px 14px;
+  border-radius: 12px;
+  background: rgba(91, 75, 196, 0.08);
   color: $primary;
-  opacity: 0;
-  transform: translateX(-4px);
+  font-size: 0.88rem;
+  font-weight: 600;
   transition:
-    opacity 0.2s ease,
-    transform 0.2s ease;
+    background 0.2s ease,
+    color 0.2s ease;
 }
 
-.tema-card:hover .tema-card__flecha {
-  opacity: 1;
-  transform: translateX(0);
+.tema-card:hover .tema-card__cta {
+  background: $primary;
+  color: #fff;
 }
 </style>

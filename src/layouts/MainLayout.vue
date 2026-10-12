@@ -14,29 +14,39 @@
 
         <q-space />
 
-        <q-btn
-          v-if="auth.esCatequista"
-          flat
-          round
-          dense
-          icon="tune"
-          aria-label="Panel de administración"
-          to="/admin"
-        >
-          <q-tooltip>Panel de administración</q-tooltip>
-        </q-btn>
+        <template v-if="auth.esCatequista">
+          <q-btn flat no-caps dense icon="tune" label="Panel" class="app-auth gt-xs" to="/admin" />
+          <q-btn
+            flat
+            round
+            dense
+            icon="tune"
+            class="app-auth lt-sm"
+            aria-label="Panel de administración"
+            to="/admin"
+          />
+        </template>
 
-        <q-btn
-          v-else
-          flat
-          round
-          dense
-          icon="login"
-          aria-label="Entrar como catequista"
-          to="/entrar"
-        >
-          <q-tooltip>Entrar como catequista</q-tooltip>
-        </q-btn>
+        <template v-else>
+          <q-btn
+            flat
+            no-caps
+            dense
+            icon="login"
+            label="Catequistas"
+            class="app-auth gt-xs"
+            to="/entrar"
+          />
+          <q-btn
+            flat
+            round
+            dense
+            icon="login"
+            class="app-auth lt-sm"
+            aria-label="Entrar como catequista"
+            to="/entrar"
+          />
+        </template>
       </q-toolbar>
     </q-header>
 
@@ -99,6 +109,20 @@ const auth = useAuthStore();
 .app-brand__sub {
   font-size: 0.74rem;
   color: rgba(255, 255, 255, 0.72);
+}
+
+.app-auth {
+  color: #fff;
+  opacity: 0.92;
+  border-radius: 10px;
+  transition:
+    opacity 0.2s ease,
+    background 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.1);
+  }
 }
 
 .app-footer {

@@ -12,6 +12,8 @@
         {{ tema.descripcion }}
       </p>
 
+      <ResumenTipos :resumen="resumenTipos" class="tema-destacado__resumen" />
+
       <div class="tema-destacado__pie">
         <span v-if="tema.fecha" class="tema-destacado__meta">
           <q-icon name="calendar_today" size="14px" />
@@ -35,7 +37,8 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import ChipNuevo from './ChipNuevo.vue';
-import { formatFecha } from '@/utils/formato';
+import ResumenTipos from './ResumenTipos.vue';
+import { formatFecha, type TipoArchivo } from '@/utils/formato';
 import type { EstadoTema } from '@/types/database';
 
 const props = withDefaults(
@@ -48,6 +51,7 @@ const props = withDefaults(
       estado: EstadoTema;
     };
     totalArchivos?: number;
+    resumenTipos?: Partial<Record<TipoArchivo, number>> | null | undefined;
   }>(),
   {
     totalArchivos: 0,
