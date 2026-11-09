@@ -44,6 +44,15 @@
             />
 
             <q-input
+              v-model="form.item"
+              outlined
+              label="Ítem"
+              hint="Etiqueta visible en la card, por ejemplo «Tema 1»."
+              maxlength="60"
+              class="q-mt-md"
+            />
+
+            <q-input
               v-model="form.descripcion"
               outlined
               type="textarea"
@@ -441,6 +450,7 @@ const form = ref<{
   descripcion: string;
   contenido: string;
   imagen: string;
+  item: string;
   fecha: string;
   orden: number;
   estado: EstadoTema;
@@ -450,6 +460,7 @@ const form = ref<{
   descripcion: '',
   contenido: '',
   imagen: '',
+  item: '',
   fecha: '',
   orden: 0,
   estado: 'borrador',
@@ -544,6 +555,7 @@ async function cargar() {
       descripcion: tema.descripcion ?? '',
       contenido: tema.contenido ?? '',
       imagen: tema.imagen ?? '',
+      item: tema.item ?? '',
       fecha: paraInputFecha(tema.fecha),
       orden: tema.orden,
       estado: tema.estado,
@@ -574,6 +586,7 @@ async function guardar() {
       fecha: form.value.fecha || null,
       orden: Number.isFinite(form.value.orden) ? form.value.orden : 0,
       imagen: form.value.imagen || null,
+      item: form.value.item.trim() || null,
     };
 
     const eraNuevo = esNuevo.value;

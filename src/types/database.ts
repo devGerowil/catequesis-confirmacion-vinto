@@ -28,6 +28,7 @@ export interface Tema {
   descripcion: string | null;
   contenido: string | null;
   imagen: string | null;
+  item: string | null;
   estado: EstadoTema;
   orden: number;
   fecha: string | null;
@@ -54,7 +55,7 @@ export interface Archivo {
 /** Datos que acepta la creación/edición de un tema. */
 export type TemaInput = Pick<
   Tema,
-  'titulo' | 'descripcion' | 'contenido' | 'imagen' | 'estado' | 'orden' | 'fecha'
+  'titulo' | 'descripcion' | 'contenido' | 'imagen' | 'item' | 'estado' | 'orden' | 'fecha'
 >;
 
 export type TemaUpdate = Partial<TemaInput>;

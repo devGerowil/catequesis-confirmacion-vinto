@@ -70,6 +70,7 @@ export interface Database {
           fecha: string | null;
           id: string;
           imagen: string | null;
+          item: string | null;
           orden: number;
           titulo: string;
         };
@@ -83,6 +84,7 @@ export interface Database {
           fecha?: string | null;
           id?: string;
           imagen?: string | null;
+          item?: string | null;
           orden?: number;
           titulo: string;
         };
@@ -96,6 +98,7 @@ export interface Database {
           fecha?: string | null;
           id?: string;
           imagen?: string | null;
+          item?: string | null;
           orden?: number;
           titulo?: string;
         };

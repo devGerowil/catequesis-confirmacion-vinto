@@ -10,7 +10,8 @@
 
     <div class="tema-card__topo">
       <div class="tema-card__topo-izq">
-        <span class="tema-card__numero">{{ numero }}</span>
+        <span v-if="tema.item" class="tema-card__item">{{ tema.item }}</span>
+        <span v-else class="tema-card__numero">{{ numero }}</span>
         <ChipNuevo v-if="nuevo" />
       </div>
       <EstadoChip v-if="mostrarEstado" :estado="tema.estado" />
@@ -61,6 +62,7 @@ const props = withDefaults(
       titulo: string;
       descripcion?: string | null;
       imagen?: string | null;
+      item?: string | null;
       estado: EstadoTema;
       fecha?: string | null;
     };
@@ -163,6 +165,25 @@ const portada = computed(() => urlPortada(props.tema.imagen));
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: $primary;
+}
+
+.tema-card__item {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 5px 13px;
+  border-radius: 999px;
+  background: $primary;
+  color: #fff;
+  font-family: var(--app-font-display);
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: 0 6px 14px -6px rgba(91, 75, 196, 0.65);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tema-card__titulo {

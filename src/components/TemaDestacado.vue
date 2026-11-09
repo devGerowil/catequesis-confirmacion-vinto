@@ -2,6 +2,7 @@
   <router-link :to="{ name: 'tema', params: { id: tema.id } }" class="app-card tema-destacado">
     <div class="tema-destacado__contenido">
       <div class="tema-destacado__topo">
+        <span v-if="tema.item" class="tema-destacado__item">{{ tema.item }}</span>
         <ChipNuevo />
         <span class="text-eyebrow tema-destacado__epigrafe">Recientemente publicado</span>
       </div>
@@ -52,6 +53,7 @@ const props = withDefaults(
       titulo: string;
       descripcion?: string | null;
       imagen?: string | null;
+      item?: string | null;
       fecha?: string | null;
       estado: EstadoTema;
     };
@@ -109,6 +111,25 @@ const portada = computed(() => urlPortada(props.tema.imagen));
 .tema-destacado__epigrafe {
   color: $primary;
   font-size: 0.76rem;
+}
+
+.tema-destacado__item {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  padding: 6px 15px;
+  border-radius: 999px;
+  background: $primary;
+  color: #fff;
+  font-family: var(--app-font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: 0 8px 18px -8px rgba(91, 75, 196, 0.7);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .tema-destacado__titulo {
