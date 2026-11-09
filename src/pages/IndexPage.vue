@@ -32,7 +32,7 @@
         dense
         clearable
         debounce="150"
-        placeholder="Busca por nombre del tema…"
+        placeholder="Busca por ítem, nombre o descripción…"
         aria-label="Buscar un tema"
         class="inicio__buscador"
       >
@@ -122,7 +122,7 @@ const filtrados = computed<Tema[]>(() => {
   const texto = normalizar(busqueda.value.trim());
   if (!texto) return basePublicados.value;
   return basePublicados.value.filter((tema) =>
-    normalizar(`${tema.titulo} ${tema.descripcion ?? ''}`).includes(texto),
+    normalizar(`${tema.item ?? ''} ${tema.titulo} ${tema.descripcion ?? ''}`).includes(texto),
   );
 });
 

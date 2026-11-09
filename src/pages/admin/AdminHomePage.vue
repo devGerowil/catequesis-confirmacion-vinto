@@ -26,7 +26,7 @@
           dense
           clearable
           debounce="150"
-          placeholder="Buscar por título…"
+          placeholder="Buscar por ítem, título o descripción…"
           aria-label="Buscar tema"
           class="panel__buscador"
         >
@@ -221,7 +221,9 @@ const visibles = computed(() => {
   return store.temas.filter((tema) => {
     if (filtro.value !== 'todos' && tema.estado !== filtro.value) return false;
     if (!texto) return true;
-    return normalizar(`${tema.titulo} ${tema.descripcion ?? ''}`).includes(texto);
+    return normalizar(`${tema.item ?? ''} ${tema.titulo} ${tema.descripcion ?? ''}`).includes(
+      texto,
+    );
   });
 });
 
