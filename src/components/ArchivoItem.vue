@@ -37,18 +37,19 @@
         label="Descargar"
         class="archivo__btn"
         aria-label="Descargar archivo"
-        :href="url"
-        target="_blank"
-        rel="noopener"
-        download
+        :loading="descargando"
+        :disable="descargando"
+        @click="descargar"
       />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
+import { Notify } from 'quasar';
 import { urlPublica } from '@/services/archivos';
+import { descargarArchivo } from '@/utils/descargar';
 import {
   esVisualizable,
   formatFecha,
@@ -69,6 +70,24 @@ const tipo = computed(() => tipoDeArchivo(props.archivo));
 const info = computed(() => INFO_TIPOS[tipo.value]);
 const url = computed(() => urlPublica(props.archivo.ruta));
 const fecha = computed(() => (props.mostrarFecha ? formatFecha(props.archivo.creado_at) : ''));
+const descargando = ref(false);
+
+async function descargar() {
+  if (descargando.value) return;
+
+  descargando.value = true;
+  try {
+    await descargarArchivo(url.value, props.archivo.nombre);
+  } catch {
+    Notify.create({
+      type: 'negative',
+      message: 'No se pudo descargar el archivo. Inténtalo de nuevo.',
+      icon: 'error',
+    });
+  } finally {
+    descargando.value = false;
+  }
+}
 </script>
 
 <style scoped lang="scss">

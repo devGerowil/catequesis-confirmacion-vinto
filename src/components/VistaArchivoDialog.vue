@@ -22,10 +22,9 @@
           round
           icon="download"
           aria-label="Descargar"
-          :href="url"
-          download
-          target="_blank"
-          rel="noopener"
+          :loading="descargando"
+          :disable="descargando"
+          @click="descargar"
         >
           <q-tooltip>Descargar</q-tooltip>
         </q-btn>
@@ -47,7 +46,9 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { Notify } from 'quasar';
 import { urlPublica } from '@/services/archivos';
+import { descargarArchivo } from '@/utils/descargar';
 import { tipoDeArchivo } from '@/utils/formato';
 import type { Archivo } from '@/types/database';
 
@@ -59,6 +60,7 @@ const props = defineProps<{
 defineEmits<{ 'update:modelValue': [valor: boolean] }>();
 
 const clave = ref(0);
+const descargando = ref(false);
 
 const tipo = computed(() => (props.archivo ? tipoDeArchivo(props.archivo) : 'otro'));
 const url = computed(() => (props.archivo ? urlPublica(props.archivo.ruta) : ''));
@@ -74,6 +76,23 @@ watch(
 
 function ajustar() {
   clave.value += 1;
+}
+
+async function descargar() {
+  if (!props.archivo || descargando.value) return;
+
+  descargando.value = true;
+  try {
+    await descargarArchivo(url.value, props.archivo.nombre);
+  } catch {
+    Notify.create({
+      type: 'negative',
+      message: 'No se pudo descargar el archivo. Inténtalo de nuevo.',
+      icon: 'error',
+    });
+  } finally {
+    descargando.value = false;
+  }
 }
 </script>
 
