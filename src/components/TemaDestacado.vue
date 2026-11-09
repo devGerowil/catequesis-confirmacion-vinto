@@ -30,7 +30,10 @@
       </div>
     </div>
 
-    <div class="tema-destacado__acento" aria-hidden="true"></div>
+    <figure v-if="portada" class="tema-destacado__portada">
+      <img :src="portada" :alt="`Portada de ${tema.titulo}`" loading="lazy" decoding="async" />
+    </figure>
+    <div v-else class="tema-destacado__acento" aria-hidden="true"></div>
   </router-link>
 </template>
 
@@ -38,6 +41,7 @@
 import { computed } from 'vue';
 import ChipNuevo from './ChipNuevo.vue';
 import ResumenTipos from './ResumenTipos.vue';
+import { urlPortada } from '@/services/portadas';
 import { formatFecha, type TipoArchivo } from '@/utils/formato';
 import type { EstadoTema } from '@/types/database';
 
@@ -47,6 +51,7 @@ const props = withDefaults(
       id: string;
       titulo: string;
       descripcion?: string | null;
+      imagen?: string | null;
       fecha?: string | null;
       estado: EstadoTema;
     };
@@ -59,6 +64,7 @@ const props = withDefaults(
 );
 
 const totalArchivos = computed(() => props.totalArchivos ?? 0);
+const portada = computed(() => urlPortada(props.tema.imagen));
 </script>
 
 <style scoped lang="scss">
@@ -159,6 +165,19 @@ const totalArchivos = computed(() => props.totalArchivos ?? 0);
   transform: translateX(0);
 }
 
+.tema-destacado__portada {
+  width: 300px;
+  margin: 0;
+  overflow: hidden;
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
 .tema-destacado__acento {
   width: 220px;
   background: radial-gradient(circle at top, rgba(232, 163, 61, 0.22), rgba(91, 75, 196, 0.16) 58%);
@@ -175,6 +194,12 @@ const totalArchivos = computed(() => props.totalArchivos ?? 0);
 @media (max-width: 720px) {
   .tema-destacado {
     grid-template-columns: 1fr;
+  }
+
+  .tema-destacado__portada {
+    width: 100%;
+    height: 180px;
+    order: -1;
   }
 
   .tema-destacado__acento {

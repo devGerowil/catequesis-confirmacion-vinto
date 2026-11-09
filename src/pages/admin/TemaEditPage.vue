@@ -67,6 +67,18 @@
           </section>
 
           <section class="app-card editor__bloque">
+            <h2 class="editor__bloque-titulo">Imagen de portada</h2>
+            <p class="editor__bloque-ayuda">
+              Se muestra en la card del tema. Si no subes una, la card se verá sin imagen.
+            </p>
+            <SubirPortada
+              :preview="portadaVisible"
+              @seleccionar="elegirPortada"
+              @quitar="quitarPortada"
+            />
+          </section>
+
+          <section class="app-card editor__bloque">
             <div class="editor__bloque-cabecera">
               <div>
                 <h2 class="editor__bloque-titulo">Archivos</h2>
@@ -396,10 +408,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from 'vue';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { useQuasar } from 'quasar';
 import { useRoute, useRouter } from 'vue-router';
 import SubirArchivos from '@/components/admin/SubirArchivos.vue';
+import SubirPortada from '@/components/admin/SubirPortada.vue';
 import VacioEstado from '@/components/VacioEstado.vue';
 import {
   eliminarArchivo as borrarArchivoRemoto,
@@ -407,6 +420,7 @@ import {
   reordenarArchivos,
   subirArchivo,
 } from '@/services/archivos';
+import { eliminarPortada, subirPortada, urlPortada } from '@/services/portadas';
 import { mensajeDeError, supabaseConfigurado } from '@/services/supabase';
 import { useAuthStore } from '@/stores/auth';
 import { useTemasStore } from '@/stores/temas';
@@ -426,6 +440,7 @@ const form = ref<{
   titulo: string;
   descripcion: string;
   contenido: string;
+  imagen: string;
   fecha: string;
   orden: number;
   estado: EstadoTema;
@@ -434,6 +449,7 @@ const form = ref<{
   titulo: '',
   descripcion: '',
   contenido: '',
+  imagen: '',
   fecha: '',
   orden: 0,
   estado: 'borrador',
@@ -458,6 +474,12 @@ const borrandoTema = ref(false);
 const archivoABorrar = ref<Archivo | null>(null);
 const pendientes = ref<{ id: string; file: File }[]>([]);
 
+const portadaPendiente = ref<File | null>(null);
+const portadaPreview = ref<string | null>(null);
+const imagenOriginal = ref('');
+
+const portadaVisible = computed(() => portadaPreview.value ?? urlPortada(form.value.imagen));
+
 const reglaTitulo = (valor: string) => Boolean(valor?.trim()) || 'El título es obligatorio';
 
 watch(publicado, (valor) => {
@@ -478,6 +500,23 @@ function avisar(mensaje: string, tipo: 'positive' | 'negative' | 'info' = 'posit
 async function recargarArchivos() {
   if (!form.value.id) return;
   archivos.value = await listarArchivos(form.value.id);
+}
+
+function elegirPortada(archivo: File) {
+  limpiarPortadaPendiente();
+  portadaPendiente.value = archivo;
+  portadaPreview.value = URL.createObjectURL(archivo);
+}
+
+function quitarPortada() {
+  limpiarPortadaPendiente();
+  form.value.imagen = '';
+}
+
+function limpiarPortadaPendiente() {
+  if (portadaPreview.value) URL.revokeObjectURL(portadaPreview.value);
+  portadaPreview.value = null;
+  portadaPendiente.value = null;
 }
 
 async function cargar() {
@@ -504,10 +543,12 @@ async function cargar() {
       titulo: tema.titulo,
       descripcion: tema.descripcion ?? '',
       contenido: tema.contenido ?? '',
+      imagen: tema.imagen ?? '',
       fecha: paraInputFecha(tema.fecha),
       orden: tema.orden,
       estado: tema.estado,
     };
+    imagenOriginal.value = tema.imagen ?? '';
     publicado.value = tema.estado === 'publicado';
     archivos.value = await listarArchivos(id);
   } catch (error) {
@@ -532,21 +573,46 @@ async function guardar() {
       estado: form.value.estado,
       fecha: form.value.fecha || null,
       orden: Number.isFinite(form.value.orden) ? form.value.orden : 0,
+      imagen: form.value.imagen || null,
     };
 
     const eraNuevo = esNuevo.value;
+    const rutaAnterior = imagenOriginal.value;
 
     if (eraNuevo) {
-      const tema = await store.crear(datos, auth.perfil?.id ?? null);
+      const tema = await store.crear({ ...datos, imagen: null }, auth.perfil?.id ?? null);
       form.value.id = tema.id;
       await router.replace({
         name: 'tema-editar',
         params: { id: tema.id },
       });
     } else {
+      if (portadaPendiente.value) {
+        datos.imagen = await subirPortada(form.value.id, portadaPendiente.value);
+      }
       await store.guardar(form.value.id, datos);
       await recargarArchivos();
     }
+
+    // La portada de un tema recién creado necesita el id, que ya existe aquí.
+    if (eraNuevo && portadaPendiente.value) {
+      const ruta = await subirPortada(form.value.id, portadaPendiente.value);
+      await store.guardar(form.value.id, { imagen: ruta });
+      datos.imagen = ruta;
+    }
+
+    const rutaNueva = datos.imagen;
+    if (rutaAnterior && rutaAnterior !== rutaNueva) {
+      try {
+        await eliminarPortada(rutaAnterior);
+      } catch {
+        // La portada nueva ya quedó guardada; no bloqueamos por un archivo huérfano.
+      }
+    }
+
+    form.value.imagen = rutaNueva ?? '';
+    imagenOriginal.value = rutaNueva ?? '';
+    limpiarPortadaPendiente();
 
     if (pendientes.value.length > 0) {
       const porSubir = pendientes.value.map((p) => p.file);
@@ -678,7 +744,16 @@ function pedirBorradoTema() {
 async function borrarTema() {
   borrandoTema.value = true;
   try {
+    const rutaPortada = imagenOriginal.value || form.value.imagen;
     await store.borrar(form.value.id);
+    if (rutaPortada) {
+      try {
+        await eliminarPortada(rutaPortada);
+      } catch {
+        // El tema ya se borró; no bloqueamos por un archivo huérfano.
+      }
+    }
+    limpiarPortadaPendiente();
     avisar('Tema eliminado.', 'info');
     await router.push('/admin');
   } catch (error) {
@@ -689,6 +764,7 @@ async function borrarTema() {
 }
 
 onMounted(cargar);
+onBeforeUnmount(limpiarPortadaPendiente);
 </script>
 
 <style scoped lang="scss">

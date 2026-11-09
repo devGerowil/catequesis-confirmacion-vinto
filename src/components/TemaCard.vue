@@ -4,6 +4,10 @@
     :to="esEnlace ? destino : undefined"
     :class="['app-card', 'tema-card', { 'tema-card--nuevo': nuevo }]"
   >
+    <figure v-if="portada" class="tema-card__portada">
+      <img :src="portada" :alt="`Portada de ${tema.titulo}`" loading="lazy" decoding="async" />
+    </figure>
+
     <div class="tema-card__topo">
       <div class="tema-card__topo-izq">
         <span class="tema-card__numero">{{ numero }}</span>
@@ -47,6 +51,7 @@ import { computed } from 'vue';
 import EstadoChip from './EstadoChip.vue';
 import ChipNuevo from './ChipNuevo.vue';
 import ResumenTipos from './ResumenTipos.vue';
+import { urlPortada } from '@/services/portadas';
 import { formatFecha, type TipoArchivo } from '@/utils/formato';
 import type { EstadoTema } from '@/types/database';
 
@@ -55,6 +60,7 @@ const props = withDefaults(
     tema: {
       titulo: string;
       descripcion?: string | null;
+      imagen?: string | null;
       estado: EstadoTema;
       fecha?: string | null;
     };
@@ -76,6 +82,7 @@ const props = withDefaults(
 );
 
 const totalArchivos = computed(() => props.totalArchivos ?? 0);
+const portada = computed(() => urlPortada(props.tema.imagen));
 </script>
 
 <style scoped lang="scss">
@@ -92,6 +99,7 @@ const totalArchivos = computed(() => props.totalArchivos ?? 0);
     border-color 0.2s ease;
   height: 100%;
   box-sizing: border-box;
+  overflow: hidden;
 
   &:hover {
     border-color: rgba(91, 75, 196, 0.32);
@@ -118,6 +126,19 @@ const totalArchivos = computed(() => props.totalArchivos ?? 0);
     box-shadow:
       0 2px 6px rgba(36, 31, 53, 0.05),
       0 20px 40px -18px rgba(232, 163, 61, 0.5);
+  }
+}
+
+.tema-card__portada {
+  margin: -22px -22px 0;
+  aspect-ratio: 16 / 9;
+  background: rgba(122, 115, 137, 0.08);
+
+  img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 }
 

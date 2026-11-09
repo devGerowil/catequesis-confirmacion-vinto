@@ -3,7 +3,7 @@ import { tipoDeArchivo, type TipoArchivo } from '@/utils/formato';
 import type { Tema, TemaInput, TemaUpdate } from '@/types/database';
 
 const CAMPOS =
-  'id, titulo, descripcion, contenido, estado, orden, fecha, creado_por, creado_at, actualizado_at';
+  'id, titulo, descripcion, contenido, imagen, estado, orden, fecha, creado_por, creado_at, actualizado_at';
 
 /** Lista los temas visibles para el usuario actual (la RLS ya filtra borradores). */
 export async function listarTemas(): Promise<Tema[]> {

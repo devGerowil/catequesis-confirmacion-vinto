@@ -69,6 +69,7 @@ export interface Database {
           estado: 'borrador' | 'publicado';
           fecha: string | null;
           id: string;
+          imagen: string | null;
           orden: number;
           titulo: string;
         };
@@ -81,6 +82,7 @@ export interface Database {
           estado?: 'borrador' | 'publicado';
           fecha?: string | null;
           id?: string;
+          imagen?: string | null;
           orden?: number;
           titulo: string;
         };
@@ -93,6 +95,7 @@ export interface Database {
           estado?: 'borrador' | 'publicado';
           fecha?: string | null;
           id?: string;
+          imagen?: string | null;
           orden?: number;
           titulo?: string;
         };

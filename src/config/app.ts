@@ -32,3 +32,12 @@ export const ALLOWED_EXTENSIONS = [
 /** Valor para el atributo `accept` del input de archivos. */
 export const ACCEPTED_MIME =
   '.pdf,.jpg,.jpeg,.png,.gif,.webp,.doc,.docx,.odt,.txt,.rtf,.xls,.xlsx,.ppt,.pptx';
+
+/** Tamaño máximo de la imagen de portada en MB. */
+export const MAX_PORTADA_SIZE_MB = 5;
+
+/** Tipos aceptados para la imagen de portada. */
+export const PORTADA_MIME = 'image/jpeg,image/png,image/webp,image/avif,image/gif';
+
+/** Extensiones aceptadas para la imagen de portada. */
+export const PORTADA_EXTENSIONS = ['jpg', 'jpeg', 'png', 'webp', 'avif', 'gif'];
